@@ -1,35 +1,46 @@
-# Save as server.py
-from flask import Flask, request, jsonify
-import joblib
+from flask import Flask, render_template, request
 import pickle
+import pandas as pd
 
 
 app = Flask(__name__)
-# Load model
 model = pickle.load(open("modelo_gradient_boosting.pkl", "rb"))
 
-@app.route('/post_data', methods=['POST'])
-def post_data():
-    data = request.get_json()
-    if data:
-        return jsonify({"status": "success", "received_data": data}), 200
-    else:
-        return jsonify({"status": "error", "message": "Invalid JSON"}), 400
 
+def model_pred(features):
+    test_data = pd.DataFrame([features])
+    prediction = model.predict(test_data)
+    return int(prediction[0])
 
-@app.route('/predict', methods=['POST'])
+@app.route("/predict", methods=["POST"])
 def predict():
-    # Get the JSON data from the request
-    data = request.get_json()
+    if request.method == "POST":
+        data = request.json
 
-    # Assuming the data is sent as a list of features for prediction
-    features = np.array(data['features']).reshape(1, -1)
+        # Extracting data from the JSON object
+        AirTemperature = float(data["Air temperature [K]"])
+        ProcessTemperature = float(data["Process temperature [K]"])
+        RotationalSpeed = int(data["Rotational speed [rpm]"])
+        Torque = float(data["Torque [Nm]"])
+        ToolWear = int(data["Tool wear [min]"])
+        Type__H = int(data["Type__H"])
+        Type__L = int(data["Type__L"])
+        Type__M = int(data["Type__M"])
 
-    # Make a prediction
-    prediction = model.predict(features)
+        # Create a numpy array for the model input
+        model_input = np.array([[AirTemperature, ProcessTemperature, RotationalSpeed, Torque, ToolWear, Type__H, Type__L, Type__M]])
 
-    # Return the prediction result as JSON
-    return jsonify({'prediction': prediction.tolist()})
+        # Make a prediction using the loaded model
+        prediction = model.predict(model_input)
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+        # Return the result based on the prediction
+        if prediction[0] == 1:
+            return jsonify({"result": "defect"})
+        else:
+            return jsonify({"result": "working"})
+
+    else:
+        return jsonify({"error": "Invalid request method"}), 405
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
