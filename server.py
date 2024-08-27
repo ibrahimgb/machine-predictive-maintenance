@@ -2,6 +2,16 @@ from flask import Flask, request, jsonify
 import pickle
 import numpy as np
 
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+import os
+from email.message import EmailMessage
+import ssl
+import smtplib
+import json
+
 app = Flask(__name__)
 
 # Load the model when the Flask app starts
@@ -32,6 +42,7 @@ def predict():
 
             # Return the result based on the prediction
             if prediction[0] == 1:
+                
                 return jsonify({"result": "defect"})
             else:
                 return jsonify({"result": "working"})
@@ -42,6 +53,56 @@ def predict():
 
     else:
         return jsonify({"error": "Invalid request method"}), 405
+
+@app.route("/contact", methods=["POST"])
+def sendAlertToContacts():
+    # Load the JSON data from the file
+    file_path = 'contact.json'
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+    
+    # List to collect all emails
+    emails = []
+
+    # Iterate over each section in the JSON data
+    for section in data:
+        for person in data[section]:
+            # Append the email to the list if it exists
+            email = person.get("email")
+            if email:
+                emails.append(email)
+    
+    # Print all collected emails
+    for email in emails:
+        send_email(email)
+
+
+
+def send_email(to_email):
+    # Load environment variables from .env file
+    load_dotenv()
+
+    # Email account credentials from environment variables
+    from_email = os.getenv("EMAIL_ADDRESS")
+    from_password = os.getenv("EMAIL_PASS")
+    #to_email="ibrahim.guoual.b@gmail.com"
+    print(from_password)
+    # Email content
+    subject = "Potontial machine Failier"
+    body= "Alerting for a potential machin falier in "
+
+    # Create the email
+    msg = EmailMessage()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Subject'] = subject
+    msg.set_content(body)
+
+    context = ssl.create_default_context()
+    
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+        smtp.login(from_email, from_password)
+        smtp.sendmail(from_email, to_email, msg.as_string())
 
 if __name__ == "__main__":
     app.run(debug=True)
