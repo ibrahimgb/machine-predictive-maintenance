@@ -1,2 +1,4 @@
 .pkl
 venv/
+.env
+.tsv
