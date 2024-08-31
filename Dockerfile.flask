@@ -1,0 +1,20 @@
+# Use the official Python image from the Docker Hub as the base image
+FROM python:3.10-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the Flask application code into the container
+COPY server.py /app/
+COPY modelo_gradient_boosting.pkl /app/
+COPY contact.json /app/
+COPY .env /app/
+
+# Install the necessary Python packages
+RUN pip install flask numpy scikit-learn python-dotenv
+
+# Expose the port that Flask will run on
+EXPOSE 5000
+
+# Run the Flask application
+CMD ["python", "server.py"]

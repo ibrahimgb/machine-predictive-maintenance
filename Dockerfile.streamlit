@@ -1,0 +1,18 @@
+# Use the official Python image from the Docker Hub as the base image
+FROM python:3.10-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the Streamlit application code into the container
+COPY email_alert.py /app/
+COPY contact.json /app/
+
+# Install Streamlit and any other dependencies
+RUN pip install streamlit
+
+# Expose the port that Streamlit will run on
+EXPOSE 8501
+
+# Run the Streamlit application
+CMD ["streamlit", "run", "email_alert.py"]
