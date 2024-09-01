@@ -1,13 +1,6 @@
 version: '3.8'
 
 services:
-  data:
-    build:
-      context: .
-      dockerfile: Dockerfile.data
-    volumes:
-      - contact-data:/data
-
   flask:
     build:
       context: .
@@ -15,7 +8,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - contact-data:/app/contact.json
+      - contact-data:/data/contact.json
     networks:
       - app-network
 
@@ -28,7 +21,7 @@ services:
     depends_on:
       - flask
     volumes:
-      - contact-data:/app/contact.json
+      - contact-data:/data/contact.json
     networks:
       - app-network
 
