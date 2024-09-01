@@ -3,7 +3,9 @@ import json
 import os
 
 # Path to the JSON file
-contact_file = 'contact.json'
+from dotenv import load_dotenv
+contact_file = os.getenv("CONTACT_LIST") #'data/contact.json'
+print(contact_file)
 
 # Initial data to be saved if the file doesn't exist
 initial_data = {
@@ -41,7 +43,7 @@ def save_contacts(contacts):
 contacts = load_contacts()
 
 # Title of the app
-st.title("Email Address Categorization")
+st.title("Email And Contact Alert For Maintenance")
 
 # Function to add a maintainer to the category
 def add_maintainer(name, phone, email):
