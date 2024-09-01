@@ -42,7 +42,6 @@ class FlaskAppTestCase(unittest.TestCase):
                     self.assertEqual(response.json, {"result": "defect"})
                 else:
                     self.fail(f"Unexpected Target value: {target}")
-                
 
 if __name__ == '__main__':
     unittest.main()
