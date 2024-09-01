@@ -57,7 +57,10 @@ def predict():
 @app.route("/contact", methods=["POST"])
 def sendAlertToContacts():
     # Load the JSON data from the file
-    file_path = 'contact.json'
+    load_dotenv()
+    
+    file_path = os.getenv("CONTACTS") #'data/contact.json'
+    print(file_path)
     with open(file_path, 'r') as file:
         data = json.load(file)
     
